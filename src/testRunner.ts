@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { ChildProcess, ChildProcessWithoutNullStreams, spawn } from "child_process";
+import { spawn as crossSpawn } from "cross-spawn";
 import { chunksToLinesAsync } from "@rauschma/stringio";
 import { TestStepResultStatus, TestCase as TestCaseMessage, StepDefinition, Pickle, StepKeywordType, Envelope, Hook, Feature, Step, TestStepFinished } from "@cucumber/messages";
 import { handleError } from "./errorHandlers/testRunErrorHandler";
@@ -215,15 +216,37 @@ export class TestRunner {
         this.logChannel.appendLine(`Root Directory: ${rootDirectory}`);
         const cucumberjsPath = path.normalize(path.join(rootDirectory, "node_modules/@cucumber/cucumber/bin/cucumber.js"));
 
+        const runCmd = adapterConfig.get<string | undefined>("runCmd") ?? "node";
+        this.logChannel.appendLine(`Run command: ${runCmd}`);
+
         const abortController = new AbortController();
         testRun.token.onCancellationRequested(() => {
             abortController.abort();
         });
-        const cucumberProcess = spawn(`node`, [...debugOptions, cucumberjsPath, ...itemsOptions, "--format", "message", ...profileOptions], {
+
+        // this.debuggeeProcess = cp.spawn("node", nodeArgs, {
+        //     stdio: ["pipe", "pipe", "pipe", "ipc"],
+        // })
+        // for vscode launch params -> "runtimeExecutable": "npm.cmd",
+        // https://stackoverflow.com/questions/27688804/how-do-i-debug-error-spawn-enoent-on-node-js/
+        
+        //TODO check if all arguments are split properly
+        const cucumberProcess = spawn(`${runCmd}`, [...debugOptions, cucumberjsPath, ...itemsOptions, "--format", "message", ...profileOptions], {
             cwd: workingDirectory,
             env,
             signal: abortController.signal,
+            // shell: true <- unsafe but can try
         });
+
+        // https://github.com/moxystudio/node-cross-spawn
+        //const child = crossSpawn('npm', ['list', '-g', '-depth', '0'], { stdio: 'inherit' });
+        // const cucumberProcess = crossSpawn(`${runCmd}`, [...debugOptions, cucumberjsPath, ...itemsOptions, "--format", "message", ...profileOptions], {
+        //     cwd: workingDirectory,
+        //     env,
+        //     signal: abortController.signal,
+        //     stdio: 'inherit'
+        //     // shell: true <- unsafe but can try
+        // });
 
         this.logChannel.appendLine(`Started Process ${cucumberProcess.spawnfile}:    ${cucumberProcess.spawnargs}`);
 
@@ -575,6 +598,7 @@ export class TestRunner {
 
     private getRunnerRootDirectory(workspace: vscode.WorkspaceFolder, settings: vscode.WorkspaceConfiguration) {
         const configuredPath = settings.get<string | undefined>("rootDirectory");
+        //return configuredPath ?? ""; //TODO FIX GLOBAL TEST
         return configuredPath ? path.normalize(path.join(normalizeDriveLetter(workspace.uri.fsPath), configuredPath)) : normalizeDriveLetter(workspace.uri.fsPath);
     }
 

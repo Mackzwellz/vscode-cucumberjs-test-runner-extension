@@ -1,0 +1,20 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "files.exclude": {
+        "out": false // set this to true to hide the "out" folder with the compiled JS files
+    },
+    "search.exclude": {
+        "out": true // set this to false to include "out" folder in search results
+    },
+    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+    "typescript.tsc.autoDetect": "off",
+
+    
+  //"cucumberTestExtension.env": "",
+  //"cucumberTestExtension.profile": "",
+  // D:/coderepos/javascript/vscode-cucumber-runner-repos/mackzwellz-aristotelos-cucumber-test-extension/sample-workspace/
+  "cucumberTestExtension.rootDirectory": " D:/coderepos/javascript/vscode-cucumber-runner-repos/mackzwellz-aristotelos-cucumber-test-extension/", // WHERE CUCUMBER IS //node_modules/@cucumber/cucumber/bin/cucumber.js 
+  //"cucumberTestExtension.rootDirectory": "${workspaceRoot}", // WHERE CUCUMBER IS //node_modules/@cucumber/cucumber/bin/cucumber.js 
+  //"cucumberTestExtension.workingDirectory": "${workspaceRoot}", // WHERE TO RUN TESTS FROM
+  //"cucumberTestExtension.runCmd": "npm",
+}
